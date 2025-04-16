@@ -55,7 +55,9 @@ services:
       - log-network
 
   app:
-    build: ./app
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
@@ -66,6 +68,11 @@ services:
         condition: service_healthy
     networks:
       - log-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   consumer:
     build: 
@@ -95,8 +102,8 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     depends_on:
-      - consumer
-      - kafka-exporter
+      app:
+        condition: service_healthy
     networks:
       - log-network
 
@@ -114,7 +121,6 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
     depends_on:
       - prometheus
     networks:
