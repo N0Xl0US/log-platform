@@ -4,7 +4,6 @@ A scalable logging platform built with FastAPI, Kafka, Prometheus, and Grafana. 
 
 ## Architecture
 
-![Architecture](https://i.imgur.com/example.png)
 
 The platform consists of the following components:
 - **FastAPI Application**: Generates logs for different endpoints
